@@ -1,0 +1,113 @@
+﻿@model IEnumerable<CustomUserLogin.Models.EmployerDefaulter>
+
+@{
+    ViewData["Title"] = "Index";
+    int count = 1; // Initialize counter
+}
+
+
+<table class="table table-bordered table-striped" id="employerTable">
+    <thead>
+        <tr>
+            <th>#</th>
+           
+            <th>
+                @Html.DisplayNameFor(model => model.AffectedEmployees)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContributionMonth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MonthsRun)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SurchargeDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AmountDefaulted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SurchargeDue)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalAmountDue)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+         <td>@count</td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AffectedEmployees)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContributionMonth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MonthsRun)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SurchargeDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AmountDefaulted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SurchargeDue)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalAmountDue)
+            </td>
+                <td>
+                    <span class="badge @(item.Status == CustomUserLogin.Enums.EmployerStatus.DemandNoticeSent ? "bg-warning text-red" : "bg-success")">
+                       
+                        @item.Status
+                    </span>
+                </td>
+          <td>
+                   @*  <a asp-controller="EmployerDefaulters" asp-action="Edit" asp-route-id="@item.Id" class="  ">
+                        <i class="fas fa-edit"></i> 
+                    </a>
+                    <a asp-controller="EmployerDefaulters" asp-action="Delete" asp-route-id="@item.Id" class="  ">
+                        <i class="fas fa-trash"></i> 
+                    </a> *@
+                      <a asp-controller="EmployerDefaulters" asp-action="Details" asp-route-id="@item.Id" class="">
+                          <i class="fas fa-eye"></i> 
+                      </a>
+                </td>
+        </tr>
+        count++;
+}
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#employerTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                lengthMenu: [10, 25, 50, 100],
+                language: {
+                    search: "Search Employers:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Prev"
+                    }
+                }
+            });
+        });
+    </script>
+}

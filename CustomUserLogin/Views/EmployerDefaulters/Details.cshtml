@@ -1,0 +1,84 @@
+﻿@model CustomUserLogin.Models.EmployerDefaulter
+
+<div class="container mt-4">
+    <!-- Defaulter Details Card -->
+    <div class="card shadow-sm">
+        <div class="card-header  d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Defaulter Details</h4>
+            <span class="badge @(Model.Status == CustomUserLogin.Enums.EmployerStatus.DemandNoticeSent  ? "bg-success" : "bg-warning text-dark")">
+                @Model.Status
+            </span>
+        </div>
+
+        <div class="card-body">
+            <!-- Basic Information -->
+            <h5 class="fw-bold">Basic Information</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" value="@Model.employers.Name" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Affected Employees</label>
+                    <input type="text" class="form-control" value="@Model.AffectedEmployees" readonly>
+                </div>
+            </div>
+
+            <!-- Contribution Details -->
+            <h5 class="fw-bold">Contribution Details</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Contribution Month</label>
+                    <input type="text" class="form-control" value="@Model.ContributionMonth.ToString("dd/MM/yyyy")" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Months Run</label>
+                    <input type="text" class="form-control" value="@Model.MonthsRun" readonly>
+                </div>
+            </div>
+
+            <!-- Financial Details -->
+            <h5 class="fw-bold">Financial Details</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Amount Defaulted</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Ksh</span>
+                        <input type="text" class="form-control" value="@Model.AmountDefaulted.ToString("N2")" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Surcharge Due</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Ksh</span>
+                        <input type="text" class="form-control" value="@Model.SurchargeDue.ToString("N2")" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Total Amount Due</label>
+                    <div class="input-group">
+                        <span class="input-group-text">Ksh</span>
+                        <input type="text" class="form-control border-dark" value="@Model.TotalAmountDue.ToString("N2")" readonly>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Surcharge Date</label>
+                    <input type="text" class="form-control" value="@Model.SurchargeDate.ToString("dd/MM/yyyy")" readonly>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-controller="Employers" asp-action="Details" asp-route-id="@Model.EmployerId" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                <a asp-controller="PaymentDetails"asp-action="Create"  class="btn btn-success">
+                    Pay Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

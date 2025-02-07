@@ -1,0 +1,80 @@
+﻿@model CustomUserLogin.Models.Employers
+
+@{
+    ViewData["Title"] = "Edit Employer";
+}
+
+<div class="container ">
+    <div class="card shadow-lg p-4" style=" width: 100%;">
+        <div class="card-body">
+            <h2 class="text-center mb-3">
+                <i class="fas fa-user-tie"></i> Edit Employer
+            </h2>
+
+            <div class="text-center">
+                <span class="badge
+        @(Model.Status == CustomUserLogin.Enums.EmployerStatus.Draft ? "bg-warning text-dark" : "bg-success")">
+                    <i class="fas @(Model.Status == CustomUserLogin.Enums.EmployerStatus.Draft ? "fa-edit" : "fa-check-circle")"></i>
+                    @Model.Status.ToString()
+                </span>
+            </div>
+            <hr />
+
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Name" class="form-control" placeholder="Employer Name" required />
+                    <label asp-for="Name"><i class="fas fa-building me-2"></i> Employer Name</label>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="EnrollmentNumber" class="form-control" placeholder="Enrollment Number" required />
+                    <label asp-for="EnrollmentNumber"><i class="fas fa-id-card me-2"></i> Enrollment Number</label>
+                    <span asp-validation-for="EnrollmentNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="SSNITEmployerNumber" class="form-control" placeholder="SSNIT Employer Number" required />
+                    <label asp-for="SSNITEmployerNumber"><i class="fas fa-file-alt me-2"></i> SSNIT Employer Number</label>
+                    <span asp-validation-for="SSNITEmployerNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="DigitalAddress" class="form-control" placeholder="Digital Address" required />
+                    <label asp-for="DigitalAddress"><i class="fas fa-map-marker-alt me-2"></i> Digital Address</label>
+                    <span asp-validation-for="DigitalAddress" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" type="email" class="form-control" placeholder="Email" required />
+                    <label asp-for="Email"><i class="fas fa-envelope me-2"></i> Email</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="Phone Number" required />
+                    <label asp-for="PhoneNumber"><i class="fas fa-phone me-2"></i> Phone Number</label>
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                    <i class="fas fa-check-circle"></i> Edit Employer
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="btn btn-link text-decoration-none">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

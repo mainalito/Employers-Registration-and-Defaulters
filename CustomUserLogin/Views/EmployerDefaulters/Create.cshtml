@@ -1,0 +1,105 @@
+﻿@model CustomUserLogin.Models.EmployerDefaulter
+
+@{
+    ViewData["Title"] = "Add to Defaulters";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <!-- Wider form with offset -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-slash"></i> Add Employer to Defaulters</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                         <input type="hidden" asp-for="EmployerId" /> 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="AffectedEmployees" class="form-label">
+                                        <i class="fas fa-users"></i> Affected Employees
+                                    </label>
+                                    <input asp-for="AffectedEmployees" class="form-control" placeholder="Enter number of affected employees" required />
+                                    <span asp-validation-for="AffectedEmployees" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ContributionMonth" class="form-label">
+                                        <i class="fas fa-calendar-alt"></i> Contribution Month
+                                    </label>
+                                    <input asp-for="ContributionMonth" type="date" class="form-control" required />
+                                    <span asp-validation-for="ContributionMonth" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MonthsRun" class="form-label">
+                                        <i class="fas fa-clock"></i> Months Run
+                                    </label>
+                                    <input asp-for="MonthsRun" type="number" class="form-control" placeholder="Enter number of months" required />
+                                    <span asp-validation-for="MonthsRun" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="SurchargeDate" class="form-label">
+                                        <i class="fas fa-calendar"></i> Surcharge Date
+                                    </label>
+                                    <input asp-for="SurchargeDate" type="date" class="form-control" required readon1y />
+                                    <span asp-validation-for="SurchargeDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="AmountDefaulted" class="form-label">
+                                        <i class="fas fa-money-bill-wave"></i> Amount Defaulted
+                                    </label>
+                                    <input asp-for="AmountDefaulted" type="number" step="0.01" class="form-control" placeholder="Enter defaulted amount" required />
+                                    <span asp-validation-for="AmountDefaulted" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="SurchargeDue" class="form-label">
+                                        <i class="fas fa-exclamation-triangle"></i> Surcharge Due
+                                    </label>
+                                    <input asp-for="SurchargeDue" type="number" step="0.01" class="form-control" placeholder="Enter surcharge amount" required />
+                                    <span asp-validation-for="SurchargeDue" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                                <i class="fas fa-plus-circle"></i> Add to Defaulters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-end">
+                    <a class="btn btn-warning" asp-controller="Employers" asp-action="Details" asp-route-id="@Model.EmployerId">
+                        <i class="fas fa-arrow-left"></i> Back</a>
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
