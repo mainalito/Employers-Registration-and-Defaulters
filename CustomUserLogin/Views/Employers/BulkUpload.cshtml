@@ -1,0 +1,40 @@
+﻿<!-- Display Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+}
+<form asp-controller="Employers" asp-action="BulkUpload" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <h5 class="mb-3 text-center"><i class="fa-solid fa-upload"></i> Bulk Upload</h5>
+
+    <!-- Download Template Button -->
+
+    <a class=" mb-3 d-flex align-items-center justify-content-end" asp-action="DownloadTemplate">
+        <div class="btn btn-outline-dark">
+            <i class="fa-solid  fa-file-arrow-down me-2"></i> Download Template
+
+        </div>
+    </a>
+
+    <!-- File Input Field -->
+    <div class="mb-3">
+        <label for="fileInput" class="form-label fw-bold">Select File to Upload</label>
+        <input type="file" id="fileInput" name="file" class="form-control shadow-sm" required>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success shadow-sm">
+        <i class="fas fa-cloud-upload-alt"></i> Upload File
+    </button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

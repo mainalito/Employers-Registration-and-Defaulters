@@ -365,3 +365,8 @@ FodyWeavers.xsd
 # Ignore appsettings.json files
 appsettings.json
 appsettings.Development.json
+/CustomUserLogin/appsettings.json
+/.gitignore
+/.gitignore
+/CustomUserLogin/wwwroot
+/CustomUserLogin/uploads

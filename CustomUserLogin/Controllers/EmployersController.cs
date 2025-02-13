@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using CustomUserLogin.Data;
 using CustomUserLogin.Models;
 using CustomUserLogin.ViewModel;
+using CustomUserLogin.Enums;
+using OfficeOpenXml;
 
 namespace CustomUserLogin.Controllers
 {
@@ -16,11 +18,12 @@ namespace CustomUserLogin.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public EmployersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        private readonly IWebHostEnvironment _env;
+        public EmployersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
         {
             _context = context;
             _userManager = userManager;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -81,6 +84,159 @@ namespace CustomUserLogin.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult BulkUpload()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> BulkUpload(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Error"] = "No file selected. Please upload a valid Excel file.";
+                return View();
+            }
+
+            try
+            {
+                // Validate file extension
+                var allowedExtensions = new[] { ".xls", ".xlsx" };
+                var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    TempData["Error"] = "Invalid file format. Only .xls and .xlsx files are allowed.";
+                    return View();
+
+                }
+
+                // Generate a safe file name with a random unique name
+                string fileName = $"{Guid.NewGuid()}{fileExtension}";
+
+                // Define a secure storage path outside wwwroot
+                var uploadPath = Path.Combine(_env.ContentRootPath, "uploads");
+
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                var fileSavePath = Path.Combine(uploadPath, fileName);
+
+                // Save the uploaded file
+                using (var stream = new FileStream(fileSavePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Ensure the file exists before processing
+                if (!System.IO.File.Exists(fileSavePath))
+                {
+                    TempData["Error"] = "File upload failed. The file could not be saved.";
+                    return View();
+
+                }
+
+                // Process the Excel file
+                using (var package = new ExcelPackage(new FileInfo(fileSavePath)))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet == null)
+                    {
+                        System.IO.File.Delete(fileSavePath); // Delete file on error
+                        TempData["Error"] = "Uploaded file does not contain a valid worksheet.";
+                        return View();
+
+                    }
+
+                    int rowCount = worksheet.Dimension?.Rows ?? 0;
+                    if (rowCount < 2)
+                    {
+                        System.IO.File.Delete(fileSavePath); // Delete file on error
+                        TempData["Error"] = "Uploaded file is empty or contains no data.";
+                        return View();
+
+                    }
+
+                    List<Employers> employersList = new List<Employers>();
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        string name = worksheet.Cells[row, 1].Text.Trim();
+
+                        string enrollmentNumber = worksheet.Cells[row, 2].Text.Trim();
+                        string ssnitEmployerNumber = worksheet.Cells[row, 3].Text.Trim();
+                        string digitalAddress = worksheet.Cells[row, 4].Text.Trim();
+                        string email = worksheet.Cells[row, 5].Text.Trim();
+                        string phoneNumber = worksheet.Cells[row, 6].Text.Trim();
+
+                        if (string.IsNullOrWhiteSpace(enrollmentNumber) || string.IsNullOrWhiteSpace(name) ||
+                            string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(phoneNumber))
+                        {
+                            TempData["Error"] = $"Missing required fields at row {row}. Skipping entry.";
+                            continue;
+                        }
+
+                        bool exists = await _context.Employers.AnyAsync(e => e.EnrollmentNumber == enrollmentNumber);
+                        if (exists)
+                        {
+                            TempData["Error"] = $"Duplicate Enrollment Number at row {row}: {enrollmentNumber}. Skipping entry.";
+                            continue;
+                        }
+
+                        var employer = new Employers
+                        {
+                            EnrollmentNumber = enrollmentNumber,
+                            SSNITEmployerNumber = ssnitEmployerNumber,
+                            Name = name,
+                            DigitalAddress = digitalAddress,
+                            Email = email,
+                            PhoneNumber = phoneNumber,
+                            Status = EmployerStatus.Submitted,
+                            CreatedDate = DateTime.UtcNow,
+                            CreatedBy = _userManager.GetUserId(User),
+                            FileName = fileName
+                        };
+
+                        employersList.Add(employer);
+                    }
+
+                    if (employersList.Count > 0)
+                    {
+                        await _context.Employers.AddRangeAsync(employersList);
+                        await _context.SaveChangesAsync();
+                        TempData["Success"] = $"{employersList.Count} records uploaded successfully!";
+                    }
+                    else
+                    {
+                        System.IO.File.Delete(fileSavePath); // Delete file if no valid data
+                        TempData["Error"] = "No  records found in the file.";
+                    }
+                }
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+
+                TempData["Error"] = $"Unexpected error: {ex.Message}";
+                return View();
+            }
+        }
+        public IActionResult DownloadTemplate()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "EmployerRegistration.xlsx");
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Template not found.");
+            }
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "BulkUploadTemplate.xlsx");
+        }
+
 
         // ✅ Handle Employer Creation
         [HttpPost]

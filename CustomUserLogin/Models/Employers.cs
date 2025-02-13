@@ -36,4 +36,5 @@ public class Employers
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     public string? CreatedBy { get; set; }
+    public string? FileName { get; set; }
 }
