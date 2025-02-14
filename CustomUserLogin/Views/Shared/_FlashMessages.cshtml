@@ -1,0 +1,21 @@
+﻿@* Flash Messages Partial *@
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" style="background-color: #c8e6c9; color: #2f2e2e; padding: 10px; margin: 10px 0; border-radius: 5px;">
+        <p><i class="fa fa-check-circle"></i> @TempData["Success"]</p>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" style="background-color: #ff8a65; color: #2f2e2e; padding: 10px; margin: 10px 0; border-radius: 5px;">
+        <p><i class="fa fa-exclamation-circle"></i> @TempData["Error"]</p>
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning" style="background-color: #f6c452; color: #2f2e2e; padding: 10px; margin: 10px 0; border-radius: 5px;">
+        <p><i class="fa fa-exclamation-triangle"></i> @TempData["Warning"]</p>
+    </div>
+}

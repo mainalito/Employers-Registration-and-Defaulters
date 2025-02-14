@@ -1,5 +1,5 @@
 using CustomUserLogin.Data;
-using CustomUserLogin.Services;
+using CustomUserLogin.Intefaces;
 using CustomUserLogin.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +15,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<EmailService>();
 
+
+
+// Register EmailService with Dependency Injection
+builder.Services.AddSingleton<IEmailService, EmailService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

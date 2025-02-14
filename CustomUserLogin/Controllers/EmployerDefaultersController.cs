@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Threading.Tasks;
 using CustomUserLogin.Data;
 using CustomUserLogin.Models;
-using CustomUserLogin.Services;
 using CustomUserLogin.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using CustomUserLogin.Intefaces;
 
 namespace CustomUserLogin.Controllers
 {
@@ -19,12 +21,13 @@ namespace CustomUserLogin.Controllers
     public class EmployerDefaultersController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly EmailService _emailService;
+        private readonly IEmailService _emailService;
+
         private readonly UserManager<ApplicationUser> _userManager;
 
         public EmployerDefaultersController(
             ApplicationDbContext context,
-            EmailService emailService,
+          IEmailService emailService,
             UserManager<ApplicationUser> userManager
         )
         {
@@ -92,20 +95,25 @@ namespace CustomUserLogin.Controllers
 
             if (ModelState.IsValid)
             {
-                employerDefaulter.TotalAmountDue =
-                    employerDefaulter.AmountDefaulted + employerDefaulter.SurchargeDue;
+                employerDefaulter.TotalAmountDue = employerDefaulter.AmountDefaulted + employerDefaulter.SurchargeDue;
                 employerDefaulter.Status = Enums.EmployerStatus.DemandNoticeSent;
                 _context.Add(employerDefaulter);
                 await _context.SaveChangesAsync();
                 var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
                 Console.WriteLine("UserEmail ============>" + userEmail);
 
-                await _emailService.SendEmailAsync(
-                    userEmail,
-                    "Test Email from Mailtrap",
-                    "<p>This is a test email from Mailtrap.</p>"
-                );
+                var employer = await _context.Employers.FindAsync(employerDefaulter.EmployerId);
 
+
+                string message = $@"
+                        Dear {employer.Name},
+
+                        We hope this email finds you well. We would like to bring to your immediate attention that our records indicate an outstanding balance of 
+                        **{employerDefaulter.TotalAmountDue:C}** for the period **{employerDefaulter.ContributionMonth}**.
+";
+
+                await _emailService.SendEmailAsync("from@example.com", employer.Email, "Urgent: Employer Payment Default Notice", message);
+                TempData["Success"] = "Successfully added as defaulter";
                 return RedirectToAction(
                     "Details",
                     "Employers",

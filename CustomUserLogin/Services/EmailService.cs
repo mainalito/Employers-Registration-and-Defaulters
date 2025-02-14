@@ -1,47 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net.Mail;
+﻿
+using CustomUserLogin.Intefaces;
 using System.Net;
+using System.Net.Mail;
 
-namespace CustomUserLogin.Services
+public class EmailService : IEmailService
 {
-    public class EmailService : Controller
+    private readonly IConfiguration _configuration;
+
+    public EmailService(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+    }
 
-        public EmailService(IConfiguration configuration)
+    public async Task SendEmailAsync(string fromEmail, string toEmail, string subject, string body)
+    {
+        try
         {
-            _configuration = configuration;
+            // Load SMTP settings from appsettings.json
+            var smtpSettings = _configuration.GetSection("SmtpSettings");
+            string smtpHost = smtpSettings["Host"];
+            string smtpPortString = smtpSettings["Port"];
+            string smtpUser = smtpSettings["Username"];
+            string smtpPass = smtpSettings["Password"];
+            string enableSslString = smtpSettings["EnableSSL"];
+
+            // Validate that all required settings are provided
+            if (string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpPortString) ||
+                string.IsNullOrEmpty(smtpUser) || string.IsNullOrEmpty(smtpPass) || string.IsNullOrEmpty(enableSslString))
+            {
+                throw new ArgumentException("One or more SMTP settings are missing in appsettings.json");
+            }
+
+
+            var client = new SmtpClient(smtpHost, int.Parse(smtpPortString))
+            {
+                Credentials = new NetworkCredential(smtpUser, smtpPass),
+                EnableSsl = true
+            };
+            client.Send("from@example.com", toEmail, subject, body);
+            System.Console.WriteLine("Sent");
+           
+
+
         }
-
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        catch (Exception ex)
         {
-            try
-            {
-                var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
-                {
-                    Port = int.Parse(_configuration["EmailSettings:SmtpPort"]),
-                    Credentials = new NetworkCredential(
-                        _configuration["EmailSettings:SmtpUsername"],
-                        _configuration["EmailSettings:SmtpPassword"]
-                    ),
-                    EnableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"])
-                };
-
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress("test@example.com"), // Use a fake sender email
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true, // Set to true if sending HTML emails
-                };
-                mailMessage.To.Add(toEmail);
-
-                await smtpClient.SendMailAsync(mailMessage);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Email sending failed: {ex.Message}");
-            }
+            Console.WriteLine($"Email sending failed: {ex.Message}");
+            throw;
         }
     }
+
 }
